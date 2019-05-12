@@ -1,0 +1,7 @@
+version: '3'
+services:
+  site:
+    image: moredip/todo-backend-site:latest
+    ports:
+      - "8080:4567"
+    command: build serve

@@ -1,0 +1,9 @@
+[package]
+name = "todo-backend-rs"
+version = "0.1.0"
+authors = ["Andrea Corradi <andreac@unstable.it>"]
+edition = "2018"
+
+[dependencies]
+actix-web = "1.0.0-beta.3"
+env_logger = "0.6.1"
