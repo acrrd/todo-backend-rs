@@ -1,33 +1,18 @@
 use actix_web::{
-    http::header, http::Method, middleware::cors::Cors, middleware::Logger, web, App, HttpRequest,
-    HttpResponse, HttpServer,
+    http::header, http::Method, middleware::cors::Cors, middleware::Logger, web, App, HttpServer,
 };
+use std::sync::RwLock;
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Todo {
-    title: String,
-}
-
-fn get_todos() -> HttpResponse {
-    HttpResponse::Ok().json([] as [Todo; 0])
-}
-
-fn delete_todos() -> HttpResponse {
-    HttpResponse::Ok().finish()
-}
-
-fn create_todo(todo: web::Json<Todo>) -> HttpResponse {
-    HttpResponse::Ok().json(todo.0)
-}
+mod todo;
+mod todo_endpoints;
 
 fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=info");
+    std::env::set_var("RUST_LOG", "actix_web=debug");
     env_logger::init();
 
     HttpServer::new(move || {
         App::new()
+            .data(RwLock::new(todo::TodoStore::new()))
             .wrap(
                 Cors::new()
                     .send_wildcard()
@@ -44,9 +29,9 @@ fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .service(
                 web::resource("/todos/")
-                    .route(web::get().to(get_todos))
-                    .route(web::delete().to(delete_todos))
-                    .route(web::post().to(create_todo)),
+                    .route(web::get().to(todo_endpoints::get_todos))
+                    .route(web::delete().to(todo_endpoints::delete_todos))
+                    .route(web::post().to(todo_endpoints::create_todo)),
             )
     })
     .bind("127.0.0.1:8000")?
