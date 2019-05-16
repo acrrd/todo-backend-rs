@@ -1,7 +1,6 @@
 use actix_web::{
     http::header, http::Method, middleware::cors::Cors, middleware::Logger, web, App, HttpServer,
 };
-use std::sync::RwLock;
 
 mod todo;
 mod todo_endpoints;
@@ -12,7 +11,7 @@ fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .data(RwLock::new(todo::TodoStore::new()))
+            .data(todo_endpoints::TodoData::new())
             .wrap(
                 Cors::new()
                     .send_wildcard()
