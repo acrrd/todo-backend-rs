@@ -1,10 +1,11 @@
 use actix_web::{web, HttpResponse};
 use std::ops::Deref;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 use crate::todo;
 
-pub struct TodoData(RwLock<todo::TodoStore>);
+#[derive(Clone)]
+pub struct TodoData(Arc<RwLock<todo::TodoStore>>);
 
 impl Deref for TodoData {
     type Target = RwLock<todo::TodoStore>;
@@ -16,7 +17,7 @@ impl Deref for TodoData {
 
 impl TodoData {
     pub fn new() -> Self {
-        TodoData(RwLock::new(todo::TodoStore::new()))
+        TodoData(Arc::new(RwLock::new(todo::TodoStore::new())))
     }
 }
 

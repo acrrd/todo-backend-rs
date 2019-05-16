@@ -9,9 +9,11 @@ fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=debug");
     env_logger::init();
 
+    let todo_data = todo_endpoints::TodoData::new();
+
     HttpServer::new(move || {
         App::new()
-            .data(todo_endpoints::TodoData::new())
+            .data(todo_data.clone())
             .wrap(
                 Cors::new()
                     .send_wildcard()
