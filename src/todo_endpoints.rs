@@ -21,7 +21,16 @@ impl TodoData {
     }
 }
 
-pub fn get_todos(data: web::Data<TodoData>) -> HttpResponse {
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::resource("/todos/")
+            .route(web::get().to(get_todos))
+            .route(web::delete().to(delete_todos))
+            .route(web::post().to(create_todo)),
+    );
+}
+
+fn get_todos(data: web::Data<TodoData>) -> HttpResponse {
     data.read()
         .map(|store| {
             let todos = todo::get_todos(&store);
@@ -30,7 +39,7 @@ pub fn get_todos(data: web::Data<TodoData>) -> HttpResponse {
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }
 
-pub fn delete_todos(data: web::Data<TodoData>) -> HttpResponse {
+fn delete_todos(data: web::Data<TodoData>) -> HttpResponse {
     data.write()
         .map(|mut store| {
             todo::delete_todos(&mut store);
@@ -39,7 +48,7 @@ pub fn delete_todos(data: web::Data<TodoData>) -> HttpResponse {
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }
 
-pub fn create_todo(data: web::Data<TodoData>, input: web::Json<todo::CreateTodo>) -> HttpResponse {
+fn create_todo(data: web::Data<TodoData>, input: web::Json<todo::CreateTodo>) -> HttpResponse {
     data.write()
         .map(|mut store| {
             let todo = todo::create_todo(&mut store, input.into_inner());

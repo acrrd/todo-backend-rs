@@ -1,5 +1,5 @@
 use actix_web::{
-    http::header, http::Method, middleware::cors::Cors, middleware::Logger, web, App, HttpServer,
+    http::header, http::Method, middleware::cors::Cors, middleware::Logger, App, HttpServer,
 };
 
 mod todo;
@@ -28,12 +28,7 @@ fn main() -> std::io::Result<()> {
                     .max_age(3600),
             )
             .wrap(Logger::default())
-            .service(
-                web::resource("/todos/")
-                    .route(web::get().to(todo_endpoints::get_todos))
-                    .route(web::delete().to(todo_endpoints::delete_todos))
-                    .route(web::post().to(todo_endpoints::create_todo)),
-            )
+            .configure(todo_endpoints::configure)
     })
     .bind("127.0.0.1:8000")?
     .run()
