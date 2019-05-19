@@ -17,9 +17,13 @@ pub struct Todo {
 }
 
 impl Todo {
-    fn new(id: TodoId, title: String) -> Todo {
-      let url = String::new();
-      Todo { id, title, completed: false, url }
+    fn new(id: TodoId, title: String, url: String) -> Todo {
+        Todo {
+            id,
+            title,
+            completed: false,
+            url,
+        }
     }
 }
 
@@ -45,10 +49,15 @@ pub fn delete_todos(todo_store: &mut TodoStore) {
     todo_store.todos.clear();
 }
 
-pub fn create_todo(todo_store: &mut TodoStore, input: CreateTodo) -> Todo {
+pub fn create_todo(
+    todo_store: &mut TodoStore,
+    input: CreateTodo,
+    get_url: impl (FnOnce(&TodoId) -> String),
+) -> Todo {
     let id = todo_store.next_id;
     todo_store.next_id += 1;
-    let todo = Todo::new(id, input.title);
+    let url = get_url(&id);
+    let todo = Todo::new(id, input.title, url);
     todo_store.todos.insert(id, todo.clone());
 
     todo

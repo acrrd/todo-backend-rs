@@ -48,10 +48,15 @@ fn delete_todos(data: web::Data<TodoData>) -> HttpResponse {
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }
 
+fn make_todo_url<TodoId: ToString>(id: &TodoId) -> String {
+    let prefix: String = "127.0.0.1:8000/todos/".to_string();
+    prefix + &id.to_string()
+}
+
 fn create_todo(data: web::Data<TodoData>, input: web::Json<todo::CreateTodo>) -> HttpResponse {
     data.write()
         .map(|mut store| {
-            let todo = todo::create_todo(&mut store, input.into_inner());
+            let todo = todo::create_todo(&mut store, input.into_inner(), make_todo_url);
             HttpResponse::Ok().json(todo)
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
