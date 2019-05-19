@@ -12,11 +12,14 @@ type TodoId = u64;
 pub struct Todo {
     id: TodoId,
     title: String,
+    completed: bool,
+    url: String,
 }
 
 impl Todo {
     fn new(id: TodoId, title: String) -> Todo {
-        Todo { id, title }
+      let url = String::new();
+      Todo { id, title, completed: false, url }
     }
 }
 
