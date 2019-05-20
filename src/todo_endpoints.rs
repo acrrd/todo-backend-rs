@@ -60,7 +60,7 @@ fn delete_todos(data: web::Data<TodoData>) -> HttpResponse {
 }
 
 fn make_todo_url<TodoId: ToString>(id: &TodoId) -> String {
-    let prefix: String = "127.0.0.1:8000/todos/".to_string();
+    let prefix: String = "http://127.0.0.1:8000/todos/".to_string();
     prefix + &id.to_string()
 }
 
