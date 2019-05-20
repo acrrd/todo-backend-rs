@@ -6,7 +6,7 @@ pub struct CreateTodo {
     title: String,
 }
 
-type TodoId = u64;
+pub type TodoId = u64;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Todo {
@@ -43,6 +43,10 @@ impl TodoStore {
 
 pub fn get_todos(todo_store: &TodoStore) -> impl Iterator<Item = &Todo> + '_ {
     todo_store.todos.values()
+}
+
+pub fn get_todo(todo_store: &TodoStore, id: &TodoId) -> Option<Todo> {
+    todo_store.todos.get(id).cloned()
 }
 
 pub fn delete_todos(todo_store: &mut TodoStore) {

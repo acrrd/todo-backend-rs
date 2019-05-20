@@ -28,6 +28,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(web::delete().to(delete_todos))
             .route(web::post().to(create_todo)),
     );
+    cfg.service(web::resource("/todos/{id}").route(web::get().to(get_todo)));
 }
 
 fn get_todos(data: web::Data<TodoData>) -> HttpResponse {
@@ -35,6 +36,16 @@ fn get_todos(data: web::Data<TodoData>) -> HttpResponse {
         .map(|store| {
             let todos = todo::get_todos(&store);
             HttpResponse::Ok().json(todos.collect::<Vec<_>>())
+        })
+        .unwrap_or(HttpResponse::InternalServerError().finish())
+}
+
+fn get_todo(data: web::Data<TodoData>, id: web::Path<todo::TodoId>) -> HttpResponse {
+    data.read()
+        .map(|store| {
+            let todo = todo::get_todo(&store, &id);
+            todo.map(|todo| HttpResponse::Created().json(todo))
+                .unwrap_or(HttpResponse::NotFound().finish())
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }
