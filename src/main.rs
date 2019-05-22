@@ -19,6 +19,7 @@ fn main() -> std::io::Result<()> {
                     .send_wildcard()
                     .allowed_methods(vec![
                         Method::GET,
+                        Method::PATCH,
                         Method::POST,
                         Method::DELETE,
                         Method::OPTIONS,

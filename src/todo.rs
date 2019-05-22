@@ -8,6 +8,12 @@ pub struct CreateTodo {
 
 pub type TodoId = u64;
 
+#[derive(Deserialize)]
+pub struct UpdateTodo {
+    title: Option<String>,
+    completed: Option<bool>,
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Todo {
     id: TodoId,
@@ -65,4 +71,17 @@ pub fn create_todo(
     todo_store.todos.insert(id, todo.clone());
 
     todo
+}
+
+pub fn update_todo(todo_store: &mut TodoStore, id: &TodoId, input: UpdateTodo) -> Option<Todo> {
+    todo_store.todos.get_mut(&id).map(|todo| {
+        input.title.map(|title| {
+            todo.title = title;
+        });
+        input.completed.map(|completed| {
+            todo.completed = completed;
+        });
+
+        todo.clone()
+    })
 }

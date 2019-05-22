@@ -28,7 +28,11 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(web::delete().to(delete_todos))
             .route(web::post().to(create_todo)),
     );
-    cfg.service(web::resource("/todos/{id}").route(web::get().to(get_todo)));
+    cfg.service(
+        web::resource("/todos/{id}")
+            .route(web::get().to(get_todo))
+            .route(web::patch().to(update_todo)),
+    );
 }
 
 fn get_todos(data: web::Data<TodoData>) -> HttpResponse {
@@ -69,6 +73,20 @@ fn create_todo(data: web::Data<TodoData>, input: web::Json<todo::CreateTodo>) ->
         .map(|mut store| {
             let todo = todo::create_todo(&mut store, input.into_inner(), make_todo_url);
             HttpResponse::Created().json(todo)
+        })
+        .unwrap_or(HttpResponse::InternalServerError().finish())
+}
+
+fn update_todo(
+    data: web::Data<TodoData>,
+    id: web::Path<todo::TodoId>,
+    input: web::Json<todo::UpdateTodo>,
+) -> HttpResponse {
+    data.write()
+        .map(|mut store| {
+            let todo = todo::update_todo(&mut store, &id, input.into_inner());
+            todo.map(|todo| HttpResponse::Ok().json(todo))
+                .unwrap_or(HttpResponse::NotFound().finish())
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }
