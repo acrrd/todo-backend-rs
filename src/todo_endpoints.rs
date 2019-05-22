@@ -44,7 +44,7 @@ fn get_todo(data: web::Data<TodoData>, id: web::Path<todo::TodoId>) -> HttpRespo
     data.read()
         .map(|store| {
             let todo = todo::get_todo(&store, &id);
-            todo.map(|todo| HttpResponse::Created().json(todo))
+            todo.map(|todo| HttpResponse::Ok().json(todo))
                 .unwrap_or(HttpResponse::NotFound().finish())
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
@@ -68,7 +68,7 @@ fn create_todo(data: web::Data<TodoData>, input: web::Json<todo::CreateTodo>) ->
     data.write()
         .map(|mut store| {
             let todo = todo::create_todo(&mut store, input.into_inner(), make_todo_url);
-            HttpResponse::Ok().json(todo)
+            HttpResponse::Created().json(todo)
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }
