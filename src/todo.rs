@@ -4,6 +4,7 @@ use std::collections::HashMap;
 #[derive(Deserialize)]
 pub struct CreateTodo {
     title: String,
+    order: Option<u32>,
 }
 
 pub type TodoId = u64;
@@ -12,6 +13,7 @@ pub type TodoId = u64;
 pub struct UpdateTodo {
     title: Option<String>,
     completed: Option<bool>,
+    order: Option<u32>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -20,15 +22,17 @@ pub struct Todo {
     title: String,
     completed: bool,
     url: String,
+    order: u32,
 }
 
 impl Todo {
-    fn new(id: TodoId, title: String, url: String) -> Todo {
+    fn new(id: TodoId, title: String, url: String, order: Option<u32>) -> Todo {
         Todo {
             id,
             title,
             completed: false,
             url,
+            order: order.unwrap_or(0),
         }
     }
 }
@@ -71,7 +75,7 @@ pub fn create_todo(
     let id = todo_store.next_id;
     todo_store.next_id += 1;
     let url = get_url(&id);
-    let todo = Todo::new(id, input.title, url);
+    let todo = Todo::new(id, input.title, url, input.order);
     todo_store.todos.insert(id, todo.clone());
 
     todo
@@ -84,6 +88,9 @@ pub fn update_todo(todo_store: &mut TodoStore, id: &TodoId, input: UpdateTodo) -
         });
         input.completed.map(|completed| {
             todo.completed = completed;
+        });
+        input.order.map(|order| {
+            todo.order = order;
         });
 
         todo.clone()
