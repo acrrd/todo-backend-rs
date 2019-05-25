@@ -31,7 +31,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/todos/{id}")
             .route(web::get().to(get_todo))
-            .route(web::patch().to(update_todo)),
+            .route(web::patch().to(update_todo))
+            .route(web::delete().to(delete_todo)),
     );
 }
 
@@ -59,6 +60,16 @@ fn delete_todos(data: web::Data<TodoData>) -> HttpResponse {
         .map(|mut store| {
             todo::delete_todos(&mut store);
             HttpResponse::Ok().finish()
+        })
+        .unwrap_or(HttpResponse::InternalServerError().finish())
+}
+
+fn delete_todo(data: web::Data<TodoData>, id: web::Path<todo::TodoId>) -> HttpResponse {
+    data.write()
+        .map(|mut store| {
+            let todo = todo::delete_todo(&mut store, &id);
+            todo.map(|_| HttpResponse::Ok().finish())
+                .unwrap_or(HttpResponse::NotFound().finish())
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }

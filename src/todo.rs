@@ -59,6 +59,10 @@ pub fn delete_todos(todo_store: &mut TodoStore) {
     todo_store.todos.clear();
 }
 
+pub fn delete_todo(todo_store: &mut TodoStore, id: &TodoId) -> Option<Todo> {
+    todo_store.todos.remove(id)
+}
+
 pub fn create_todo(
     todo_store: &mut TodoStore,
     input: CreateTodo,
