@@ -9,7 +9,10 @@ fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=debug");
     env_logger::init();
 
-    let todo_data = todo_endpoints::TodoData::new();
+    let server_address = "127.0.0.1:8000";
+    let url = "http://".to_string() + server_address;
+
+    let todo_data = todo_endpoints::TodoData::new(url.to_string());
 
     HttpServer::new(move || {
         App::new()
@@ -31,6 +34,6 @@ fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .configure(todo_endpoints::configure)
     })
-    .bind("127.0.0.1:8000")?
+    .bind(server_address)?
     .run()
 }

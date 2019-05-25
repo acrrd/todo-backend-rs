@@ -5,19 +5,25 @@ use std::sync::{Arc, RwLock};
 use crate::todo;
 
 #[derive(Clone)]
-pub struct TodoData(Arc<RwLock<todo::TodoStore>>);
+pub struct TodoData {
+    data: Arc<RwLock<todo::TodoStore>>,
+    url: String,
+}
 
 impl Deref for TodoData {
     type Target = RwLock<todo::TodoStore>;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.data
     }
 }
 
 impl TodoData {
-    pub fn new() -> Self {
-        TodoData(Arc::new(RwLock::new(todo::TodoStore::new())))
+    pub fn new(url: String) -> Self {
+        TodoData {
+            data: Arc::new(RwLock::new(todo::TodoStore::new())),
+            url,
+        }
     }
 }
 
@@ -74,15 +80,12 @@ fn delete_todo(data: web::Data<TodoData>, id: web::Path<todo::TodoId>) -> HttpRe
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }
 
-fn make_todo_url<TodoId: ToString>(id: &TodoId) -> String {
-    let prefix: String = "http://127.0.0.1:8000/todos/".to_string();
-    prefix + &id.to_string()
-}
-
 fn create_todo(data: web::Data<TodoData>, input: web::Json<todo::CreateTodo>) -> HttpResponse {
     data.write()
         .map(|mut store| {
-            let todo = todo::create_todo(&mut store, input.into_inner(), make_todo_url);
+            let todo = todo::create_todo(&mut store, input.into_inner(), |id: &todo::TodoId| {
+                data.url.clone() + "/todos/" + &id.to_string()
+            });
             HttpResponse::Created().json(todo)
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
