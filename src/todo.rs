@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use uuid::Uuid;
 
 #[derive(Deserialize)]
 pub struct CreateTodo {
@@ -7,7 +8,7 @@ pub struct CreateTodo {
     order: Option<u32>,
 }
 
-pub type TodoId = u64;
+pub type TodoId = Uuid;
 
 #[derive(Deserialize)]
 pub struct UpdateTodo {
@@ -38,14 +39,12 @@ impl Todo {
 }
 
 pub struct TodoStore {
-    next_id: TodoId,
     todos: HashMap<TodoId, Todo>,
 }
 
 impl TodoStore {
     pub fn new() -> TodoStore {
         TodoStore {
-            next_id: 0,
             todos: HashMap::new(),
         }
     }
@@ -72,8 +71,7 @@ pub fn create_todo(
     input: CreateTodo,
     get_url: impl (FnOnce(&TodoId) -> String),
 ) -> Todo {
-    let id = todo_store.next_id;
-    todo_store.next_id += 1;
+    let id = Uuid::new_v4();
     let url = get_url(&id);
     let todo = Todo::new(id, input.title, url, input.order);
     todo_store.todos.insert(id, todo.clone());
