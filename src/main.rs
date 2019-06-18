@@ -1,6 +1,5 @@
-use actix_web::{
-    http::header, http::Method, middleware::cors::Cors, middleware::Logger, App, HttpServer,
-};
+use actix_cors::Cors;
+use actix_web::{http::header, http::Method, middleware::Logger, App, HttpServer};
 
 mod todo;
 mod todo_endpoints;
