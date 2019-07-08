@@ -19,20 +19,18 @@ pub struct UpdateTodo {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Todo {
-    id: TodoId,
-    title: String,
-    completed: bool,
-    url: String,
-    order: u32,
+    pub id: TodoId,
+    pub title: String,
+    pub completed: bool,
+    pub order: u32,
 }
 
 impl Todo {
-    fn new(id: TodoId, title: String, url: String, order: Option<u32>) -> Todo {
+    fn new(id: TodoId, title: String, order: Option<u32>) -> Todo {
         Todo {
             id,
             title,
             completed: false,
-            url,
             order: order.unwrap_or(0),
         }
     }
@@ -66,14 +64,9 @@ pub fn delete_todo(todo_store: &mut TodoStore, id: &TodoId) -> Option<Todo> {
     todo_store.todos.remove(id)
 }
 
-pub fn create_todo(
-    todo_store: &mut TodoStore,
-    input: CreateTodo,
-    get_url: impl (FnOnce(&TodoId) -> String),
-) -> Todo {
+pub fn create_todo(todo_store: &mut TodoStore, input: CreateTodo) -> Todo {
     let id = Uuid::new_v4();
-    let url = get_url(&id);
-    let todo = Todo::new(id, input.title, url, input.order);
+    let todo = Todo::new(id, input.title, input.order);
     todo_store.todos.insert(id, todo.clone());
 
     todo

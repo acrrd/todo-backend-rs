@@ -1,4 +1,5 @@
 use actix_web::{web, HttpResponse};
+use serde::Serialize;
 use std::ops::Deref;
 use std::sync::{Arc, RwLock};
 
@@ -27,6 +28,27 @@ impl TodoData {
     }
 }
 
+#[derive(Serialize)]
+struct TodoResponse {
+    id: todo::TodoId,
+    title: String,
+    completed: bool,
+    order: u32,
+    url: String,
+}
+
+impl TodoResponse {
+    fn new(url: &String, todo: &todo::Todo) -> TodoResponse {
+        TodoResponse {
+            id: todo.id,
+            title: todo.title.clone(),
+            completed: todo.completed,
+            order: todo.order,
+            url: url.clone() + "/todos/" + &todo.id.to_string(),
+        }
+    }
+}
+
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/todos/")
@@ -46,7 +68,11 @@ fn get_todos(data: web::Data<TodoData>) -> HttpResponse {
     data.read()
         .map(|store| {
             let todos = todo::get_todos(&store);
-            HttpResponse::Ok().json(todos.collect::<Vec<_>>())
+            HttpResponse::Ok().json(
+                todos
+                    .map(|todo| TodoResponse::new(&data.url, todo))
+                    .collect::<Vec<_>>(),
+            )
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }
@@ -55,7 +81,7 @@ fn get_todo(data: web::Data<TodoData>, id: web::Path<todo::TodoId>) -> HttpRespo
     data.read()
         .map(|store| {
             let todo = todo::get_todo(&store, &id);
-            todo.map(|todo| HttpResponse::Ok().json(todo))
+            todo.map(|todo| HttpResponse::Ok().json(TodoResponse::new(&data.url, &todo)))
                 .unwrap_or(HttpResponse::NotFound().finish())
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
@@ -83,10 +109,8 @@ fn delete_todo(data: web::Data<TodoData>, id: web::Path<todo::TodoId>) -> HttpRe
 fn create_todo(data: web::Data<TodoData>, input: web::Json<todo::CreateTodo>) -> HttpResponse {
     data.write()
         .map(|mut store| {
-            let todo = todo::create_todo(&mut store, input.into_inner(), |id: &todo::TodoId| {
-                data.url.clone() + "/todos/" + &id.to_string()
-            });
-            HttpResponse::Created().json(todo)
+            let todo = todo::create_todo(&mut store, input.into_inner());
+            HttpResponse::Created().json(TodoResponse::new(&data.url, &todo))
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
 }
@@ -99,7 +123,7 @@ fn update_todo(
     data.write()
         .map(|mut store| {
             let todo = todo::update_todo(&mut store, &id, input.into_inner());
-            todo.map(|todo| HttpResponse::Ok().json(todo))
+            todo.map(|todo| HttpResponse::Ok().json(TodoResponse::new(&data.url, &todo)))
                 .unwrap_or(HttpResponse::NotFound().finish())
         })
         .unwrap_or(HttpResponse::InternalServerError().finish())
