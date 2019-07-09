@@ -1,8 +1,7 @@
 use actix_cors::Cors;
 use actix_web::{http::header, http::Method, middleware::Logger, App, HttpServer};
 
-mod todo;
-mod todo_endpoints;
+use todo_backend_rs::todo_endpoints;
 
 fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=debug");
