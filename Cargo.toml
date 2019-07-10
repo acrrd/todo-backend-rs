@@ -10,3 +10,7 @@ actix-web = "1.0"
 env_logger = "0.6"
 serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "0.7", features = ["v4", "serde"]}
+
+[dev-dependencies]
+actix-http = "0.2"
+actix-http-test = "0.2"
