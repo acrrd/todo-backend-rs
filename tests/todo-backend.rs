@@ -55,10 +55,10 @@ macro_rules! get_todos {
         let mut $todos: Vec<TodoResponse> = $srv.block_on($response.json()).unwrap();
     };
     ($srv: ident, $todos: ident) => {
-      get_todos!($srv, $todos, _response);
+        get_todos!($srv, $todos, _response);
     };
     ($srv: ident) => {
-      get_todos!($srv, _todos, _response);
+        get_todos!($srv, _todos, _response);
     };
 }
 
@@ -364,4 +364,3 @@ fn remembers_changes_to_a_todo_order() {
     get_todo!(srv, &todo.url, todo);
     assert_eq!(todo.order, order);
 }
-
