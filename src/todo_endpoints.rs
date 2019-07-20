@@ -1,5 +1,5 @@
 use actix_web::{web, HttpResponse};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::sync::{Arc, RwLock};
 
@@ -28,13 +28,13 @@ impl TodoData {
     }
 }
 
-#[derive(Serialize)]
-struct TodoResponse {
-    id: todo::TodoId,
-    title: String,
-    completed: bool,
-    order: u32,
-    url: String,
+#[derive(Serialize, Deserialize)]
+pub struct TodoResponse {
+    pub id: todo::TodoId,
+    pub title: String,
+    pub completed: bool,
+    pub order: u32,
+    pub url: String,
 }
 
 impl TodoResponse {

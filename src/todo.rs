@@ -2,19 +2,19 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct CreateTodo {
-    title: String,
-    order: Option<u32>,
+    pub title: String,
+    pub order: Option<u32>,
 }
 
 pub type TodoId = Uuid;
 
-#[derive(Deserialize)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct UpdateTodo {
-    title: Option<String>,
-    completed: Option<bool>,
-    order: Option<u32>,
+    pub title: Option<String>,
+    pub completed: Option<bool>,
+    pub order: Option<u32>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
