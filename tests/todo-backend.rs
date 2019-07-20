@@ -3,8 +3,7 @@ use actix_http::HttpService;
 use actix_http_test::{TestServer, TestServerRuntime};
 use actix_web::{http::header, http::Method, App};
 
-use todo_backend_rs::todo::{CreateTodo, UpdateTodo};
-use todo_backend_rs::todo_endpoints::{configure, TodoData, TodoResponse};
+use todo_backend_rs::todo_endpoints::{configure, CreateTodo, TodoData, TodoResponse, UpdateTodo};
 
 const URL: &str = "http://testserver:1234/";
 const TITLE: &str = "title";

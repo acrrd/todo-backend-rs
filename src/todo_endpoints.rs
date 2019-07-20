@@ -5,6 +5,8 @@ use std::sync::{Arc, RwLock};
 
 use crate::todo;
 
+pub use crate::todo::{CreateTodo, UpdateTodo};
+
 #[derive(Clone)]
 pub struct TodoData {
     data: Arc<RwLock<todo::TodoStore>>,
